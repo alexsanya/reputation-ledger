@@ -24,8 +24,8 @@ pub mod gateway {
         processor::estimate::process_estimate(ctx, job_hash)
     }
 
-    pub fn evaluate(ctx: Context<Evaluate>, price: u64) -> Result<()> {
-        processor::evaluate::process_evaluate(ctx, price)
+    pub fn evaluate(ctx: Context<Evaluate>, price: u64, deadline: i64) -> Result<()> {
+        processor::evaluate::process_evaluate(ctx, price, deadline)
     }
 
     pub fn commit(ctx: Context<Commit>, amount: u64) -> Result<()> {

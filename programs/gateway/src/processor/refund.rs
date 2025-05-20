@@ -7,9 +7,10 @@ use crate::events::RefundEvent;
 
 pub fn process_refund(ctx: Context<Refund>) -> Result<()> {
     let order = &mut ctx.accounts.order;
+    let authority = order.to_account_info();
     require!(order.status == OrderStatus::Started, ErrorCode::InvalidOrderStatus);
     require!(
-        Clock::get()?.unix_timestamp - order.created_at > 24 * 60 * 60, // 24 hours timeout
+        Clock::get()?.unix_timestamp - order.created_at > order.deadline,
         ErrorCode::TimeoutNotReached
     );
     
@@ -18,9 +19,9 @@ pub fn process_refund(ctx: Context<Refund>) -> Result<()> {
         CpiContext::new(
             ctx.accounts.token_program.to_account_info(),
             Transfer {
-                from: ctx.accounts.vault_token_account.to_account_info(),
+                from: ctx.accounts.order_vault_token_account.to_account_info(),
                 to: ctx.accounts.user_token_account.to_account_info(),
-                authority: ctx.accounts.vault_authority.to_account_info(),
+                authority
             }
         ),
         order.price,

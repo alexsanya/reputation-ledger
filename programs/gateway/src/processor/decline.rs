@@ -23,6 +23,7 @@ pub fn process_decline(ctx: Context<Decline>) -> Result<()> {
     )?;
     
     order.status = OrderStatus::Aborted;
+    order.completed_at = Clock::get()?.unix_timestamp;
     
     emit!(Abort {
         order: order.key(),

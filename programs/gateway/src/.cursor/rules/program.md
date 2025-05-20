@@ -27,6 +27,12 @@ Design a trustless, transparent system on Solana where users pay for off-chain t
 
 ## 📦 Account Structure
 
+### `Config` PDA
+
+* Created once using `Initialize` instruction
+* Stores `authority` pubkey and any global config parameters
+* Used for authorization in admin-only functions
+
 ### `Order` PDA
 
 * Created by program using seeds `["order", user, job_hash]`
@@ -41,6 +47,15 @@ Design a trustless, transparent system on Solana where users pay for off-chain t
 ---
 
 ## ⚙️ Instructions
+
+### `Initialize`
+
+* Inputs: `authority_pubkey`, optional config params
+* Actions:
+
+  * Creates a `Config` PDA with seeds `["config"]`
+  * Stores authority and settings for the program
+  * Can only be called once
 
 ### `Estimate`
 
@@ -117,16 +132,20 @@ Design a trustless, transparent system on Solana where users pay for off-chain t
 
 ## ✅ Summary
 
-| Component      | Design Choice                        |
-| -------------- | ------------------------------------ |
-| Order Storage  | PDA per order (program-derived)      |
-| Vault          | PDA token account                    |
-| Indexing       | Off-chain via Helius events          |
-| Refunds        | Timeout-based + abort logic          |
-| Re-entrancy    | Avoided via execution order and CPIs |
-| Sequential IDs | Not needed (Helius handles ordering) |
-| Concurrency    | Safe due to Solana's account locks   |
+| Component          | Design Choice                            |
+| ------------------ | ---------------------------------------- |
+| Config             | PDA with program authority               |
+| Component          | Design Choice                            |
+| ------------------ | ---------------------------------------- |
+| Order Storage      | PDA per order (program-derived)          |
+| Vault              | PDA token account                        |
+| Indexing           | Off-chain via Helius events              |
+| Refunds            | Timeout-based + abort logic              |
+| Re-entrancy        | Avoided via execution order and CPIs     |
+| Sequential IDs     | Not needed (Helius handles ordering)     |
+| Concurrency        | Safe due to Solana's account locks       |
 
 ---
 
 Would you like to extend this design to support sharded logs, job reputation scores, or multi-party arbitration?
+   

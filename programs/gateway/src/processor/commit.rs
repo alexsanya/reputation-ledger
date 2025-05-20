@@ -8,6 +8,7 @@ use crate::events::Start;
 pub fn process_commit(ctx: Context<Commit>, amount: u64) -> Result<()> {
     let order = &mut ctx.accounts.order;
     require!(order.status == OrderStatus::Evaluated, ErrorCode::InvalidOrderStatus);
+    require!(order.user == ctx.accounts.user.key(), ErrorCode::InvalidUser);
     require!(amount >= order.price, ErrorCode::InsufficientFunds);
     
     // Transfer tokens to vault
@@ -16,7 +17,7 @@ pub fn process_commit(ctx: Context<Commit>, amount: u64) -> Result<()> {
             ctx.accounts.token_program.to_account_info(),
             Transfer {
                 from: ctx.accounts.user_token_account.to_account_info(),
-                to: ctx.accounts.vault_token_account.to_account_info(),
+                to: ctx.accounts.order_vault_token_account.to_account_info(),
                 authority: ctx.accounts.user.to_account_info(),
             }
         ),
@@ -24,7 +25,7 @@ pub fn process_commit(ctx: Context<Commit>, amount: u64) -> Result<()> {
     )?;
     
     order.status = OrderStatus::Started;
-    
+    order.started_at = Clock::get()?.unix_timestamp;
     emit!(Start {
         order: order.key(),
     });

@@ -1,6 +1,6 @@
 use anchor_lang::prelude::*;
 use crate::context::Estimate;
-use crate::state::{Order, OrderStatus};
+use crate::state::OrderStatus;
 use crate::events::OrderPlaced;
 
 pub fn process_estimate(ctx: Context<Estimate>, job_hash: [u8; 32]) -> Result<()> {

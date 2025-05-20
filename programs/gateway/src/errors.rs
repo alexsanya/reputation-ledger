@@ -8,4 +8,6 @@ pub enum ErrorCode {
     InsufficientFunds,
     #[msg("Timeout period not reached")]
     TimeoutNotReached,
+    #[msg("Invalid user")]
+    InvalidUser,
 } 
