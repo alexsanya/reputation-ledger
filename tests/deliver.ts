@@ -1,0 +1,26 @@
+import * as anchor from "@coral-xyz/anchor";
+import { TOKEN_PROGRAM_ID } from "@solana/spl-token";
+import { assert } from "chai";
+import { TestContext } from "./setup";
+
+export async function deliver(ctx: TestContext) {
+    const tx = await ctx.program.methods
+      .deliver(ctx.resultHash)
+      .accounts({
+        authority: ctx.service.publicKey,
+        order: ctx.orderPda,
+        orderVaultTokenAccount: ctx.orderVaultTokenAccount,
+        vaultAuthority: ctx.vaultAuthority,
+        vaultTokenAccount: ctx.vaultTokenAccount,
+        config: ctx.configPda,
+        mint: ctx.mint,
+        tokenProgram: TOKEN_PROGRAM_ID,
+        systemProgram: anchor.web3.SystemProgram.programId,
+      })
+      .signers([ctx.service])
+      .rpc();
+
+    const order = await ctx.program.account.order.fetch(ctx.orderPda);
+    assert.isDefined(order.status.completed);
+    assert.equal(order.resultHash, ctx.resultHash);
+} 
