@@ -165,4 +165,29 @@ pub struct Refund<'info> {
     pub order_vault_token_account: Account<'info, TokenAccount>,
     
     pub token_program: Program<'info, Token>,
+}
+
+#[derive(Accounts)]
+pub struct Withdraw<'info> {
+    #[account(mut)]
+    pub authority: Signer<'info>,
+    
+    #[account(
+        seeds = [b"config"],
+        has_one = authority,
+        bump
+    )]
+    pub config: Account<'info, crate::state::Config>,
+    
+    #[account(mut)]
+    pub vault_token_account: Account<'info, TokenAccount>,
+    
+    #[account(mut)]
+    pub recipient_token_account: Account<'info, TokenAccount>,
+    
+    /// CHECK: This is a PDA that will be used as the token account authority
+    #[account(seeds = [b"vault-authority"], bump)]
+    pub vault_authority: AccountInfo<'info>,
+    
+    pub token_program: Program<'info, Token>,
 } 

@@ -43,4 +43,8 @@ pub mod gateway {
     pub fn refund(ctx: Context<Refund>) -> Result<()> {
         processor::refund::process_refund(ctx)
     }
+
+    pub fn withdraw(ctx: Context<Withdraw>) -> Result<()> {
+        processor::withdraw::process_withdraw(ctx)
+    }
 }
