@@ -20,6 +20,8 @@ export interface TestContext {
     orderPda: PublicKey;
     configPda: PublicKey;
     orderVaultTokenAccount: PublicKey;
+    recipientTokenAccount: PublicKey;
+    vaultTokenAccount: PublicKey;
 }
 
 export async function setup(): Promise<TestContext> {
@@ -111,6 +113,16 @@ export async function setup(): Promise<TestContext> {
       program.programId
     );
 
+    [vaultTokenAccount] = PublicKey.findProgramAddressSync(
+      [Buffer.from("vault"), mint.toBuffer()],
+      program.programId
+    );
+
+    let recipientTokenAccount = await anchor.utils.token.associatedAddress({
+        mint,
+        owner: service.publicKey
+    });
+
     return {
         program,
         connection,
@@ -125,5 +137,7 @@ export async function setup(): Promise<TestContext> {
         orderPda,
         configPda,
         orderVaultTokenAccount,
+        recipientTokenAccount,
+        vaultTokenAccount,
     }
 }

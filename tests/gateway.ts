@@ -6,6 +6,7 @@ import { estimate } from "./estimate";
 import { evaluate } from "./evaluate";
 import { commit } from "./commit";
 import { deliver } from "./deliver";
+import { withdraw } from "./withdraw";
 
 describe("gateway", () => {
   // Configure the client to use the local cluster.
@@ -29,6 +30,10 @@ describe("gateway", () => {
 
   it("Delivers the result", async () => {
     await deliver(ctx);
+  });
+
+  it("Withdraws tokens from vault", async () => {
+    await withdraw(ctx);
   });
 
   it.skip("Allows refund after timeout", async () => {
