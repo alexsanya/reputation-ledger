@@ -14,15 +14,29 @@ pub fn process_deliver(ctx: Context<Deliver>, result_hash: [u8; 32]) -> Result<(
     order.status = OrderStatus::Completed;
     order.completed_at = Clock::get()?.unix_timestamp;
 
+    let (orderAccount, order_bump) = Pubkey::find_program_address(
+        &[b"order", order.user.as_ref(), order.job_hash.as_ref()],
+        ctx.program_id
+    );
+    require!(orderAccount == order.key(), ErrorCode::InvalidOrderVaultTokenAccount);
+
+
+    let vault_authority_seeds = &[
+        b"order",
+        order.user.as_ref(),
+        order.job_hash.as_ref(), // assuming this is how `order` PDA was created
+        &[order_bump],
+    ];
     // transfer all tokens from order_vault_token_account to vault_token_account
     token::transfer(
-        CpiContext::new(
+        CpiContext::new_with_signer(
             ctx.accounts.token_program.to_account_info(),
             Transfer {  
                 from: ctx.accounts.order_vault_token_account.to_account_info(),
                 to: ctx.accounts.vault_token_account.to_account_info(),
                 authority
-            }
+            },
+            &[vault_authority_seeds]
         ),
         order.price,
     )?;

@@ -48,7 +48,7 @@ pub struct Estimate<'info> {
     #[account(
         init,
         payer = user,
-        space = crate::state::Order::SIZE,
+        space = 500,
         seeds = [b"order", user.key().as_ref(), job_hash.as_ref()],
         bump
     )]

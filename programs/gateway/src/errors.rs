@@ -10,4 +10,6 @@ pub enum ErrorCode {
     TimeoutNotReached,
     #[msg("Invalid user")]
     InvalidUser,
+    #[msg("Invalid order vault token account")]
+    InvalidOrderVaultTokenAccount,
 } 
