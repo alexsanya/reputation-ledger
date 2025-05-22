@@ -1,30 +1,20 @@
-import { TOKEN_PROGRAM_ID, getAccount, getOrCreateAssociatedTokenAccount } from "@solana/spl-token";
+import { ASSOCIATED_TOKEN_PROGRAM_ID, TOKEN_PROGRAM_ID, getAccount } from "@solana/spl-token";
 import { assert } from "chai";
 import { TestContext } from "./setup";
 import * as anchor from "@coral-xyz/anchor";
-
 export async function withdraw(ctx: TestContext) {
     console.log("Starting withdraw test");
     console.log("Mint:", ctx.mint.toBase58());
     console.log("Vault Authority:", ctx.vaultAuthority.toBase58());
     console.log("Service:", ctx.service.publicKey.toBase58());
 
-    // Create recipient token account
-    console.log("Creating recipient token account...");
-    const recipientTokenAccount = await getOrCreateAssociatedTokenAccount(
-        ctx.connection,
-        ctx.service,
-        ctx.mint,
-        ctx.service.publicKey
-    );
-    console.log("Recipient token account created:", recipientTokenAccount.address.toBase58());
 
     // Get initial balances
     console.log("Getting initial balances...");
     const initialVaultBalance = (await getAccount(ctx.connection, ctx.vaultTokenAccount)).amount;
     console.log("Initial vault balance:", initialVaultBalance.toString());
 
-    const initialRecipientBalance = (await getAccount(ctx.connection, recipientTokenAccount.address)).amount;
+    const initialRecipientBalance = (await getAccount(ctx.connection, ctx.recipientTokenAccount)).amount;
     console.log("Initial recipient balance:", initialRecipientBalance.toString());
 
     // Withdraw tokens
@@ -35,9 +25,12 @@ export async function withdraw(ctx: TestContext) {
             authority: ctx.service.publicKey,
             config: ctx.configPda,
             vaultTokenAccount: ctx.vaultTokenAccount,
-            recipientTokenAccount: recipientTokenAccount.address,
+            recipientTokenAccount: ctx.recipientTokenAccount,
             vaultAuthority: ctx.vaultAuthority,
             tokenProgram: TOKEN_PROGRAM_ID,
+            mint: ctx.mint,
+            systemProgram: anchor.web3.SystemProgram.programId,
+            associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
         })
         .signers([ctx.service])
         .rpc();
@@ -49,7 +42,7 @@ export async function withdraw(ctx: TestContext) {
     const finalVaultBalance = (await getAccount(ctx.connection, ctx.vaultTokenAccount)).amount;
     console.log("Final vault balance:", finalVaultBalance.toString());
 
-    const finalRecipientBalance = (await getAccount(ctx.connection, recipientTokenAccount.address)).amount;
+    const finalRecipientBalance = (await getAccount(ctx.connection, ctx.recipientTokenAccount)).amount;
     console.log("Final recipient balance:", finalRecipientBalance.toString());
 
     // Verify vault is empty

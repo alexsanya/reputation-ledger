@@ -1,5 +1,5 @@
 use anchor_lang::prelude::*;
-use anchor_spl::token::{self, Mint, Token, TokenAccount};
+use anchor_spl::{associated_token::AssociatedToken, token::{self, Mint, Token, TokenAccount}};
 
 #[derive(Accounts)]
 pub struct Initialize<'info> {
@@ -182,12 +182,20 @@ pub struct Withdraw<'info> {
     #[account(mut)]
     pub vault_token_account: Account<'info, TokenAccount>,
     
-    #[account(mut)]
+    #[account(
+        init_if_needed,
+        payer = authority,
+        associated_token::authority = authority,
+        associated_token::mint = mint
+    )]
     pub recipient_token_account: Account<'info, TokenAccount>,
     
     /// CHECK: This is a PDA that will be used as the token account authority
     #[account(seeds = [b"vault-authority"], bump)]
     pub vault_authority: AccountInfo<'info>,
     
+    pub mint: Account<'info, Mint>,
     pub token_program: Program<'info, Token>,
+    pub system_program: Program<'info, System>,
+    pub associated_token_program: Program<'info, AssociatedToken>,
 } 
