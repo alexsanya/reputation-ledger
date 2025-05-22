@@ -1,5 +1,5 @@
 import * as anchor from "@coral-xyz/anchor";
-import { TOKEN_PROGRAM_ID } from "@solana/spl-token";
+import { getAccount, TOKEN_PROGRAM_ID } from "@solana/spl-token";
 import { assert } from "chai";
 import { TestContext } from "./setup";
 
@@ -22,5 +22,7 @@ export async function deliver(ctx: TestContext) {
 
     const order = await ctx.program.account.order.fetch(ctx.orderPda);
     assert.isDefined(order.status.completed);
+    const vaultBalance = (await getAccount(ctx.connection, ctx.vaultTokenAccount)).amount;
+    console.log("vaultBalance", vaultBalance);
     //assert.equal(order.resultHash, ctx.resultHash);
 } 

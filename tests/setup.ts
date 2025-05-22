@@ -1,6 +1,6 @@
 import { Program } from "@coral-xyz/anchor";
 import { Gateway } from "../target/types/gateway";
-import { PublicKey } from "@solana/web3.js";
+import { PublicKey, Keypair } from "@solana/web3.js";
 import { Connection } from "@solana/web3.js";
 import * as anchor from "@coral-xyz/anchor";
 import Keccak from 'keccak';
@@ -10,7 +10,7 @@ export interface TestContext {
     program: Program<Gateway>;
     connection: Connection;
     user: anchor.Wallet;
-    service: anchor.Wallet;
+    service: Keypair;
     jobHash: Buffer;
     resultHash: Buffer;
     price: anchor.BN;
@@ -20,15 +20,15 @@ export interface TestContext {
     orderPda: PublicKey;
     configPda: PublicKey;
     orderVaultTokenAccount: PublicKey;
-    recipientTokenAccount: PublicKey;
     vaultTokenAccount: PublicKey;
+    recipientTokenAccount: PublicKey;
 }
 
 export async function setup(): Promise<TestContext> {
 
   anchor.setProvider(anchor.AnchorProvider.env());
 
-  const service = anchor.web3.Keypair.generate();
+  const service = Keypair.generate();
 
   // Test constants
   const jobHash = Keccak('keccak256').update("test job hash").digest();
@@ -50,6 +50,7 @@ export async function setup(): Promise<TestContext> {
   let orderPda: PublicKey;
   let configPda: PublicKey;
   let orderVaultTokenAccount: PublicKey;
+  let recipientTokenAccount: PublicKey;
     await connection.requestAirdrop(service.publicKey, 10 * anchor.web3.LAMPORTS_PER_SOL);
     mint = await createMint(
       connection,
@@ -113,15 +114,19 @@ export async function setup(): Promise<TestContext> {
       program.programId
     );
 
+    // Create recipient token account for the service
+    const recipientAta = await getOrCreateAssociatedTokenAccount(
+      connection,
+      service,
+      mint,
+      service.publicKey
+    );
+    recipientTokenAccount = recipientAta.address;
+
     [vaultTokenAccount] = PublicKey.findProgramAddressSync(
       [Buffer.from("vault"), mint.toBuffer()],
       program.programId
     );
-
-    let recipientTokenAccount = await anchor.utils.token.associatedAddress({
-        mint,
-        owner: service.publicKey
-    });
 
     return {
         program,
@@ -137,7 +142,7 @@ export async function setup(): Promise<TestContext> {
         orderPda,
         configPda,
         orderVaultTokenAccount,
-        recipientTokenAccount,
         vaultTokenAccount,
+        recipientTokenAccount,
     }
 }
