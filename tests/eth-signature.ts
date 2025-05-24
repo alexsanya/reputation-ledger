@@ -78,13 +78,14 @@ export async function ethSignature(ctx: TestContext) {
         const MSG = Uint8Array.from(
             Buffer.from('this is such a good message to sign')
         );
-        signature = await nacl.sign.detached(MSG, ctx.user.payer.secretKey);
+        console.log("Service public key: ", ctx.service.publicKey.toBase58());
+        signature = await nacl.sign.detached(MSG, ctx.service.secretKey);
         
         let tx = new anchor.web3.Transaction()
             .add(
                 // Secp256k1 instruction
                 anchor.web3.Ed25519Program.createInstructionWithPublicKey({
-                    publicKey: ctx.user.publicKey.toBytes(),
+                    publicKey: ctx.service.publicKey.toBytes(),
                     message: MSG,
                     signature: signature,
                 })

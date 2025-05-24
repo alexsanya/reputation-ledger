@@ -62,10 +62,10 @@ pub fn check_ed25519_data(data: &[u8]) -> String {
 
     let exp_public_key_offset:      u16 = 16; // 2*u8 + 7*u16
 
-    msg!("data_pubkey: {:?}", data_pubkey);
 
     //serrialize data_pubkey into hex string
     let pubkey_hex = hex::encode(data_pubkey);
+    msg!("data_pubkey: {:?}", pubkey_hex);
 
     pubkey_hex
 }

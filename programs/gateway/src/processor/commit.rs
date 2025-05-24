@@ -14,8 +14,13 @@ pub fn process_commit(ctx: Context<Commit>, amount: u64) -> Result<()> {
     msg!("Signature verification syscall");
 
     let config = &ctx.accounts.config;
-    let key =  check_ed25519_data(&ix.data);
-    require!(key == config.authority.to_string(), ErrorCode::InvalidSignature);
+    let key =  hex::decode(check_ed25519_data(&ix.data)).unwrap();
+    msg!("key: {:?}", hex::encode(&key));
+    msg!("config.authority: {:?}", hex::encode(config.authority.to_bytes()));
+    msg!("ix.data: {:?}", hex::encode(ix.data));
+
+    //compare key and config.authority
+    require!(key == config.authority.to_bytes(), ErrorCode::InvalidSignature);
 
 
     //let order = &mut ctx.accounts.order;
