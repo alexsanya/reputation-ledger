@@ -28,10 +28,11 @@ impl Order {
 #[account]
 pub struct Config {
     pub authority: Pubkey,
+    pub authority_signer: Pubkey,
     pub program_fee_recipient: Pubkey,
 }
 
 impl Config {
-    pub const SIZE: usize = 8 + 32 + 32;
+    pub const SIZE: usize = 8 + 32 + 32 + 32;
 }
 

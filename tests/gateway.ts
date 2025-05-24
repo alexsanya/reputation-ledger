@@ -4,7 +4,7 @@ import { TestContext } from "./setup";
 import { setup } from "./setup";
 import { deliver } from "./deliver";
 import { withdraw } from "./withdraw";
-import { ethSignature } from "./eth-signature";
+import { commit } from "./commit";
 
 describe("gateway", () => {
   // Configure the client to use the local cluster.
@@ -16,7 +16,7 @@ describe("gateway", () => {
 
   it("Commits to the order", async () => {
     //await commit(ctx);
-    await ethSignature(ctx);
+    await commit(ctx);
   });
 
   it("Delivers the result", async () => {

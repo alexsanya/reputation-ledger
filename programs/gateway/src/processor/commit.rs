@@ -15,7 +15,7 @@ pub fn process_commit(ctx: Context<Commit>, job_hash: [u8; 32], amount: u64) -> 
     let key =  hex::decode(check_ed25519_data(&ix.data)).unwrap();
 
     //compare key and config.authority
-    require!(key == config.authority.to_bytes(), ErrorCode::InvalidSignature);
+    require!(key == config.authority_signer.to_bytes(), ErrorCode::InvalidSignature);
 
 
     let order = &mut ctx.accounts.order;
