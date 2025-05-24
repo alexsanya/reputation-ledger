@@ -6,6 +6,7 @@ pub mod context;
 pub mod errors;
 pub mod processor;
 pub mod events;
+pub mod utils;
 
 use crate::context::*;
 #[program]
@@ -28,7 +29,7 @@ pub mod gateway {
         processor::evaluate::process_evaluate(ctx, price, deadline)
     }
 
-    pub fn commit(ctx: Context<Commit>, amount: u64) -> Result<()> {
+    pub fn commit(ctx: Context<Commit>, job_hash: [u8; 32], amount: u64) -> Result<()> {
         processor::commit::process_commit(ctx, amount)
     }
 

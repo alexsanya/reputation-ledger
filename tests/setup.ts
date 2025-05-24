@@ -22,6 +22,7 @@ export interface TestContext {
     orderVaultTokenAccount: PublicKey;
     vaultTokenAccount: PublicKey;
     recipientTokenAccount: PublicKey;
+    provider: anchor.AnchorProvider;
 }
 
 export async function setup(): Promise<TestContext> {
@@ -129,6 +130,7 @@ export async function setup(): Promise<TestContext> {
     );
 
     return {
+        provider,
         program,
         connection,
         user,

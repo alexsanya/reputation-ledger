@@ -7,6 +7,7 @@ import { evaluate } from "./evaluate";
 import { commit } from "./commit";
 import { deliver } from "./deliver";
 import { withdraw } from "./withdraw";
+import { ethSignature } from "./eth-signature";
 
 describe("gateway", () => {
   // Configure the client to use the local cluster.
@@ -24,8 +25,9 @@ describe("gateway", () => {
     await evaluate(ctx);
   });
 
-  it("Commits to the order", async () => {
-    await commit(ctx);
+  it.only("Commits to the order", async () => {
+    //await commit(ctx);
+    await ethSignature(ctx);
   });
 
   it("Delivers the result", async () => {

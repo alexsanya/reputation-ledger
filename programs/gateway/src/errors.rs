@@ -14,4 +14,10 @@ pub enum ErrorCode {
     InvalidOrderVaultTokenAccount,
     #[msg("Invalid vault authority")]
     InvalidVaultAuthority,
+    #[msg("Invalid signature")]
+    InvalidSignature,
+    #[msg("Invalid instruction data")]
+    InvalidInstructionData,
+    #[msg("Invalid program id")]
+    InvalidProgramId,
 } 

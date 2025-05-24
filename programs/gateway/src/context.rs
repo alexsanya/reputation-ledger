@@ -1,4 +1,4 @@
-use anchor_lang::prelude::*;
+use anchor_lang::{prelude::*, solana_program};
 use anchor_spl::{associated_token::AssociatedToken, token::{self, Mint, Token, TokenAccount}};
 
 #[derive(Accounts)]
@@ -71,11 +71,24 @@ pub struct Evaluate<'info> {
 }
 
 #[derive(Accounts)]
+#[instruction(job_hash: [u8; 32])]
 pub struct Commit<'info> {
     #[account(mut)]
     pub user: Signer<'info>,
+
+    /// CHECK: This is a sysvar account that contains the instructions
+    #[account(
+        address = solana_program::sysvar::instructions::ID
+    )]
+    pub instructions: AccountInfo<'info>,
     
-    #[account(mut)]
+    #[account(
+        init,
+        payer = user,
+        space = 500,
+        seeds = [b"order", user.key().as_ref(), job_hash.as_ref()],
+        bump
+    )]
     pub order: Account<'info, crate::state::Order>,
     
     #[account(mut)]
@@ -96,6 +109,12 @@ pub struct Commit<'info> {
     /// CHECK: This is a PDA that will be used as the token account authority
     //#[account(seeds = [b"vault-authority"], bump)]
     //pub vault_authority: AccountInfo<'info>,
+
+    #[account(
+        seeds = [b"config"],
+        bump
+    )]
+    pub config: Account<'info, crate::state::Config>,
     
     pub token_program: Program<'info, Token>,
     pub system_program: Program<'info, System>,
