@@ -48,9 +48,9 @@ This project enables exactly that—on-chain. No middlemen, no fake reviews, no 
 
 ## 📖 What’s Recorded On-Chain?
 
-- 🔎 What was ordered  
+- 🔎 What was ordered (hash)
 - 📦 What was delivered (hash)  
-- 💰 What it cost  
+- 💰 What it cost (traceble SPL token transfer)
 - ⏱ How long it took  
 - 😊 Was the client satisfied?  
 

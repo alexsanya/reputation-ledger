@@ -69,7 +69,6 @@ export async function commit(ctx: TestContext) {
                 }
             );
             console.log("sig: ", sig);
-            //await ctx.provider.connection.sendRawTransaction(tx.serialize());
 
             const order = await ctx.program.account.order.fetch(ctx.orderPda);
             assert.isDefined(order.status.started);
