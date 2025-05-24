@@ -10,7 +10,7 @@ pub fn process_refund(ctx: Context<Refund>) -> Result<()> {
     let authority = order.to_account_info();
     require!(order.status == OrderStatus::Started, ErrorCode::InvalidOrderStatus);
     require!(
-        Clock::get()?.unix_timestamp - order.created_at > order.deadline,
+        Clock::get()?.unix_timestamp - order.started_at > order.deadline,
         ErrorCode::TimeoutNotReached
     );
     

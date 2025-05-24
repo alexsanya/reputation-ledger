@@ -95,7 +95,7 @@ pub struct Commit<'info> {
     pub user_token_account: Account<'info, TokenAccount>,
     
     #[account(
-        init_if_needed,
+        init,
         payer = user,
         seeds = [b"vault", order.key().as_ref()],
         bump,

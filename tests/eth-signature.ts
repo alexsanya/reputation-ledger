@@ -1,11 +1,13 @@
 import * as anchor from '@coral-xyz/anchor';
 import { ethers } from 'ethers';
+import { assert } from "chai";
+import { getAccount } from "@solana/spl-token";
 
-import * as assert from 'assert';
 import { TestContext } from './setup';
 import { TOKEN_PROGRAM_ID } from '@solana/spl-token';
 import { privateToAddress, ecsign, keccak256 } from 'ethereumjs-util';
 import nacl from "tweetnacl";
+import { sendAndConfirmRawTransaction } from '@solana/web3.js';
 
 // Note: The recovery byte for Secp256k1 signatures has an arbitrary constant of 27 added for these
 //       Ethereum and Bitcoin signatures. This is why you will see (recoveryId - 27) throughout the tests.
@@ -95,7 +97,7 @@ export async function ethSignature(ctx: TestContext) {
                 await ctx.program.methods
                     .commit(
                         ctx.jobHash,
-                        new anchor.BN(10)
+                        ctx.price
                     )
                     .accounts({
                         user: ctx.user.publicKey,
@@ -120,7 +122,23 @@ export async function ethSignature(ctx: TestContext) {
 
             tx.sign(ctx.user.payer);
 
-            await ctx.provider.connection.sendRawTransaction(tx.serialize());
+            const sig = await sendAndConfirmRawTransaction(
+                ctx.provider.connection,
+                tx.serialize(),
+                {
+                    commitment: "confirmed",
+                    skipPreflight: false
+                }
+            );
+            console.log("sig: ", sig);
+            //await ctx.provider.connection.sendRawTransaction(tx.serialize());
+
+            const order = await ctx.program.account.order.fetch(ctx.orderPda);
+            assert.isDefined(order.status.started);
+
+            // Check vault balance
+            const vaultAccount = await getAccount(ctx.connection, ctx.orderVaultTokenAccount);
+            assert.equal(Number(vaultAccount.amount), ctx.price.toNumber());
 
             // If all goes well, we're good!
         } catch (error) {

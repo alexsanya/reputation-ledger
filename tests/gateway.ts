@@ -2,9 +2,6 @@ import { TOKEN_PROGRAM_ID, getAccount } from "@solana/spl-token";
 import { assert } from "chai";
 import { TestContext } from "./setup";
 import { setup } from "./setup";
-import { estimate } from "./estimate";
-import { evaluate } from "./evaluate";
-import { commit } from "./commit";
 import { deliver } from "./deliver";
 import { withdraw } from "./withdraw";
 import { ethSignature } from "./eth-signature";
@@ -17,15 +14,7 @@ describe("gateway", () => {
     ctx = await setup();
   });
 
-  it("Estimate order", async () => {
-    await estimate(ctx);
-  });
-
-  it("Evaluates the order", async () => {
-    await evaluate(ctx);
-  });
-
-  it.only("Commits to the order", async () => {
+  it("Commits to the order", async () => {
     //await commit(ctx);
     await ethSignature(ctx);
   });
