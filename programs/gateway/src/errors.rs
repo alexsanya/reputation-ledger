@@ -20,4 +20,6 @@ pub enum ErrorCode {
     InvalidInstructionData,
     #[msg("Invalid program id")]
     InvalidProgramId,
+    #[msg("Invalid signature data")]
+    SigVerificationFailed
 } 

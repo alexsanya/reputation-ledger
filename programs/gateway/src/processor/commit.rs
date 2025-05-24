@@ -5,21 +5,18 @@ use crate::context::Commit;
 use crate::state::{OrderStatus};
 use crate::errors::ErrorCode;
 use crate::events::Start;
-use crate::utils::parse_ed25519_instruction;
+use crate::utils::{check_ed25519_data, parse_ed25519_instruction};
 
 pub fn process_commit(ctx: Context<Commit>, amount: u64) -> Result<()> {
     msg!("Before signature verification syscall");
     let ix = load_instruction_at_checked(0, &ctx.accounts.instructions)?;
-    require_keys_eq!(ix.program_id, solana_program::secp256k1_program::id(), ErrorCode::InvalidProgramId);
+    require_keys_eq!(ix.program_id, solana_program::ed25519_program::id(), ErrorCode::InvalidProgramId);
     msg!("Signature verification syscall");
 
     let config = &ctx.accounts.config;
-    let (pubkey, message, signature) = parse_ed25519_instruction(&ix)?;
-    require!(pubkey.as_ref() == config.authority.as_ref(), ErrorCode::InvalidSignature);
+    let key =  check_ed25519_data(&ix.data);
+    require!(key == config.authority.to_string(), ErrorCode::InvalidSignature);
 
-    msg!("Pubkey: {:?}", pubkey);
-
-    
 
     //let order = &mut ctx.accounts.order;
     //require!(order.status == OrderStatus::Evaluated, ErrorCode::InvalidOrderStatus);

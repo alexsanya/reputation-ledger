@@ -6,10 +6,12 @@
   },
   "dependencies": {
     "@coral-xyz/anchor": "^0.31.1",
+    "@noble/ed25519": "^2.2.3",
     "@solana/spl-token": "^0.4.13",
     "ethereumjs-util": "^7.1.5",
     "ethers": "^6.14.1",
-    "keccak": "^3.0.4"
+    "keccak": "^3.0.4",
+    "tweetnacl": "^1.0.3"
   },
   "devDependencies": {
     "@types/bn.js": "^5.1.0",

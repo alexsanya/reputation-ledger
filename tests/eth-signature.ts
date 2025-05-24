@@ -5,6 +5,7 @@ import * as assert from 'assert';
 import { TestContext } from './setup';
 import { TOKEN_PROGRAM_ID } from '@solana/spl-token';
 import { privateToAddress, ecsign, keccak256 } from 'ethereumjs-util';
+import nacl from "tweetnacl";
 
 // Note: The recovery byte for Secp256k1 signatures has an arbitrary constant of 27 added for these
 //       Ethereum and Bitcoin signatures. This is why you will see (recoveryId - 27) throughout the tests.
@@ -71,24 +72,22 @@ export async function ethSignature(ctx: TestContext) {
         // 2. Hash the message with keccak256
         const messageHash = keccak256(message);
       
-        // 3. Sign it using EthereumJS (secp256k1)
-        const { r, s, v } = ecsign(messageHash, privateKey);
-        const signature1 = Buffer.concat([r, s]); // 64-byte signature
-        const recoveryId1 = v - 27; // Must be 0 or 1
       
-        // 4. Create secp256k1 verification instruction
-        const secpInstruction = anchor.web3.Secp256k1Program.createInstructionWithEthAddress({
-          ethAddress,
-          message,
-          signature: signature1,
-          recoveryId: recoveryId1,
-        });
 
-        console.log({ secpInstruction });
+
+        const MSG = Uint8Array.from(
+            Buffer.from('this is such a good message to sign')
+        );
+        signature = await nacl.sign.detached(MSG, ctx.user.payer.secretKey);
+        
         let tx = new anchor.web3.Transaction()
             .add(
                 // Secp256k1 instruction
-                secpInstruction
+                anchor.web3.Ed25519Program.createInstructionWithPublicKey({
+                    publicKey: ctx.user.publicKey.toBytes(),
+                    message: MSG,
+                    signature: signature,
+                })
             )
             .add(
                 // Our instruction
