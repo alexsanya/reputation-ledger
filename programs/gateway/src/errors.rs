@@ -21,5 +21,7 @@ pub enum ErrorCode {
     #[msg("Invalid program id")]
     InvalidProgramId,
     #[msg("Invalid signature data")]
-    SigVerificationFailed
+    SigVerificationFailed,
+    #[msg("Invalid job hash")]
+    InvalidJobHash,
 } 

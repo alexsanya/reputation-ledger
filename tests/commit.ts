@@ -6,6 +6,7 @@ import { TestContext } from './setup';
 import { TOKEN_PROGRAM_ID } from '@solana/spl-token';
 import nacl from "tweetnacl";
 import { sendAndConfirmRawTransaction } from '@solana/web3.js';
+import { Order, serializeOrder } from './utils';
 
 // Note: The recovery byte for Secp256k1 signatures has an arbitrary constant of 27 added for these
 //       Ethereum and Bitcoin signatures. This is why you will see (recoveryId - 27) throughout the tests.
@@ -19,14 +20,26 @@ export async function commit(ctx: TestContext) {
         Buffer.from('this is such a good message to sign')
     );
     console.log("Service public key: ", ctx.service.publicKey.toBase58());
-    const signature = await nacl.sign.detached(MSG, ctx.service.secretKey);
+
+    const order = new Order({
+        user: ctx.user.publicKey.toBytes(),
+        job_hash: new Uint8Array(ctx.jobHash),
+        price: BigInt(100000000),
+        price_valid_until: BigInt(100500),
+        deadline: BigInt(3600),
+    });
+
+    console.log("Order: ", order);
+    const message = serializeOrder(order);
+    console.log("Message: ", message);
+    const signature = await nacl.sign.detached(message, ctx.service.secretKey);
     
     let tx = new anchor.web3.Transaction()
         .add(
             // Secp256k1 instruction
             anchor.web3.Ed25519Program.createInstructionWithPublicKey({
                 publicKey: ctx.service.publicKey.toBytes(),
-                message: MSG,
+                message,
                 signature
             })
         )

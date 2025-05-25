@@ -42,6 +42,7 @@ export class Order {
   
   export const serializeOrder = (order: Order) => {
     // call serialize and return as base58 string
-    const serializedOrder = serialize(schema, order);
-    return bs58.encode(serializedOrder);
+    //const serializedOrder = serialize(schema, order);
+    //return bs58.encode(serializedOrder);
+    return serialize(schema, order);
   }
