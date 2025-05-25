@@ -13,7 +13,7 @@ export interface TestContext {
     service: Keypair;
     jobHash: Buffer;
     resultHash: Buffer;
-    price: anchor.BN;
+    price: bigint,
     mint: PublicKey;
     userTokenAccount: PublicKey;
     vaultAuthority: PublicKey;
@@ -34,7 +34,7 @@ export async function setup(): Promise<TestContext> {
   // Test constants
   const jobHash = Keccak('keccak256').update("test job hash").digest();
   const resultHash = Keccak('keccak256').update("test result hash").digest();
-  const price = new anchor.BN(1_000_000); // 1 token with 6 decimals
+  const price = BigInt(1_000_000);
 
   // Test accounts
 

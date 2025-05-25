@@ -24,7 +24,7 @@ export async function commit(ctx: TestContext) {
     const order = new Order({
         user: ctx.user.publicKey.toBytes(),
         job_hash: new Uint8Array(ctx.jobHash),
-        price: BigInt(100000000),
+        price: ctx.price,
         price_valid_until: BigInt(100500),
         deadline: BigInt(3600),
     });
@@ -47,8 +47,7 @@ export async function commit(ctx: TestContext) {
             // Our instruction
             await ctx.program.methods
                 .commit(
-                    ctx.jobHash,
-                    ctx.price
+                    ctx.jobHash
                 )
                 .accounts({
                     user: ctx.user.publicKey,
@@ -88,7 +87,7 @@ export async function commit(ctx: TestContext) {
 
             // Check vault balance
             const vaultAccount = await getAccount(ctx.connection, ctx.orderVaultTokenAccount);
-            assert.equal(Number(vaultAccount.amount), ctx.price.toNumber());
+            assert.equal(vaultAccount.amount, ctx.price);
 
             // If all goes well, we're good!
         } catch (error) {

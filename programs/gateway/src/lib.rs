@@ -21,8 +21,8 @@ pub mod gateway {
         processor::fund_me::process_fund_me(ctx, amount)
     }
 
-    pub fn commit(ctx: Context<Commit>, job_hash: [u8; 32], amount: u64) -> Result<()> {
-        processor::commit::process_commit(ctx, job_hash, amount)
+    pub fn commit(ctx: Context<Commit>, job_hash: [u8; 32]) -> Result<()> {
+        processor::commit::process_commit(ctx, job_hash)
     }
 
     pub fn deliver(ctx: Context<Deliver>, result_hash: [u8; 32]) -> Result<()> {
