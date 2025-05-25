@@ -23,6 +23,5 @@ export async function deliver(ctx: TestContext) {
     const order = await ctx.program.account.order.fetch(ctx.orderPda);
     assert.isDefined(order.status.completed);
     const vaultBalance = (await getAccount(ctx.connection, ctx.vaultTokenAccount)).amount;
-    console.log("vaultBalance", vaultBalance);
-    //assert.equal(order.resultHash, ctx.resultHash);
+    assert.equal(vaultBalance, ctx.price);
 } 

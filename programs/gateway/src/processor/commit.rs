@@ -38,8 +38,8 @@ pub fn process_commit(ctx: Context<Commit>, job_hash: [u8; 32]) -> Result<()> {
     order.status = OrderStatus::Started;
     order.started_at = Clock::get()?.unix_timestamp;
     order.price = order_decoded.price;
-    order.price_valid_until = u64::try_from(Clock::get()?.unix_timestamp).unwrap() + 1000;
-    order.deadline = 1000;
+    order.price_valid_until = order_decoded.price_valid_until;
+    order.deadline = order_decoded.deadline;
 
     // Transfer tokens to vault
     token::transfer(

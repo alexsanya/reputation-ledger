@@ -15,10 +15,6 @@ import { Order, serializeOrder } from './utils';
 
 
 export async function commit(ctx: TestContext) {
-
-    const MSG = Uint8Array.from(
-        Buffer.from('this is such a good message to sign')
-    );
     console.log("Service public key: ", ctx.service.publicKey.toBase58());
 
     const order = new Order({
@@ -29,9 +25,7 @@ export async function commit(ctx: TestContext) {
         deadline: BigInt(3600),
     });
 
-    console.log("Order: ", order);
     const message = serializeOrder(order);
-    console.log("Message: ", message);
     const signature = await nacl.sign.detached(message, ctx.service.secretKey);
     
     let tx = new anchor.web3.Transaction()
@@ -80,7 +74,6 @@ export async function commit(ctx: TestContext) {
                     skipPreflight: false
                 }
             );
-            console.log("sig: ", sig);
 
             const order = await ctx.program.account.order.fetch(ctx.orderPda);
             assert.isDefined(order.status.started);

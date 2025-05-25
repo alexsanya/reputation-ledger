@@ -4,7 +4,6 @@ import { TestContext } from "./setup";
 import * as anchor from "@coral-xyz/anchor";
 export async function withdraw(ctx: TestContext) {
     // Get initial balances
-    console.log("Getting initial balances...");
     const initialVaultBalance = (await getAccount(ctx.connection, ctx.vaultTokenAccount)).amount;
     const initialRecipientBalance = (await getAccount(ctx.connection, ctx.recipientTokenAccount)).amount;
 
