@@ -1,6 +1,8 @@
 use anchor_lang::{prelude::*, solana_program};
 use anchor_spl::{associated_token::AssociatedToken, token::{self, Mint, Token, TokenAccount}};
 
+use crate::state::Order;
+
 #[derive(Accounts)]
 pub struct Initialize<'info> {
     #[account(mut)]
@@ -85,7 +87,7 @@ pub struct Commit<'info> {
     #[account(
         init,
         payer = user,
-        space = 500,
+        space = Order::SIZE,
         seeds = [b"order", user.key().as_ref(), job_hash.as_ref()],
         bump
     )]

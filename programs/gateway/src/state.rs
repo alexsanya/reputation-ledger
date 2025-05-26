@@ -22,7 +22,7 @@ pub struct Order {
 }
 
 impl Order {
-    pub const SIZE: usize = 8 + 32 + 32 + 8 + 8 + 1 + 8 + 8 + 8;
+    pub const SIZE: usize = core::mem::size_of::<Self>() + Self::DISCRIMINATOR.len();
 }
 
 #[account]
@@ -33,6 +33,6 @@ pub struct Config {
 }
 
 impl Config {
-    pub const SIZE: usize = 8 + 32 + 32 + 32;
+    pub const SIZE: usize = core::mem::size_of::<Self>() + Self::DISCRIMINATOR.len();
 }
 

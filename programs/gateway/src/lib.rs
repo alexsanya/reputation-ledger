@@ -13,6 +13,7 @@ use crate::context::*;
 pub mod gateway {
     use super::*;
 
+    #[instruction(discriminator = 1)]
     pub fn initialize(ctx: Context<Initialize>) -> Result<()> {
         processor::initialize::process_initialize(ctx)
     }
