@@ -4,7 +4,7 @@ import { TestContext } from "./setup";
 import { setup } from "./setup";
 import { deliver } from "./deliver";
 import { withdraw } from "./withdraw";
-import { commit } from "./commit";
+import { commitSuccess, commitWrongSignature, commitMissingInstruction, commitWrongInstruction } from "./commit";
 
 describe("gateway", () => {
   // Configure the client to use the local cluster.
@@ -14,17 +14,31 @@ describe("gateway", () => {
     ctx = await setup();
   });
 
-  it("Commits to the order", async () => {
-    //await commit(ctx);
-    await commit(ctx);
+  describe("Commit", async () => {
+    it("Missing instruction", async () => {
+      await commitMissingInstruction(ctx);
+    });
+    it("Wrong instruction", async () => {
+      await commitWrongInstruction(ctx);
+    });
+    it("Wrong signature", async () => {
+      await commitWrongSignature(ctx);
+    });
+    it("Success", async () => {
+      await commitSuccess(ctx);
+    });
   });
 
-  it("Delivers the result", async () => {
-    await deliver(ctx);
+  describe("Deliver", async () => {
+    it("Delivers the result", async () => {
+      await deliver(ctx);
+    });
   });
 
-  it("Withdraws tokens from vault", async () => {
-    await withdraw(ctx);
+  describe("Withdraw", async () => {
+    it("Withdraws tokens from vault", async () => {
+      await withdraw(ctx);
+    });
   });
 
   it.skip("Allows refund after timeout", async () => {
