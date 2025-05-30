@@ -1,8 +1,7 @@
 import { TOKEN_PROGRAM_ID, getAccount } from "@solana/spl-token";
 import { assert } from "chai";
-import { TestContext } from "./setup";
-import { setup } from "./setup";
-import { deliver } from "./deliver";
+import { setup, TestContext } from "./setup";
+import { deliverSuccess, deliverUnauthorized } from "./deliver";
 import { withdraw } from "./withdraw";
 import { commitSuccess, commitWrongSignature, commitMissingInstruction, commitWrongInstruction } from "./commit";
 
@@ -31,7 +30,10 @@ describe("gateway", () => {
 
   describe("Deliver", async () => {
     it("Delivers the result", async () => {
-      await deliver(ctx);
+      await deliverSuccess(ctx);
+    });
+    it("Deliver unauthorized", async () => {
+      await deliverUnauthorized(ctx);
     });
   });
 
