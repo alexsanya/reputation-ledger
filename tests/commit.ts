@@ -21,6 +21,7 @@ export async function commitSuccess(ctx: TestContext) {
         user: ctx.user.publicKey.toBytes(),
         job_hash: new Uint8Array(ctx.jobHash),
         price: ctx.price,
+        mint: new Uint8Array(ctx.mint.toBuffer()),
         price_valid_until: BigInt(100500),
         deadline: BigInt(3600),
     });
@@ -171,6 +172,7 @@ export async function commitWrongSignature(ctx: TestContext) {
         user: ctx.user.publicKey.toBytes(),
         job_hash: new Uint8Array(ctx.jobHash),
         price: ctx.price,
+        mint: new Uint8Array(ctx.mint.toBuffer()),
         price_valid_until: BigInt(100500),
         deadline: BigInt(3600),
     });

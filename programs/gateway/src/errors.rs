@@ -24,4 +24,6 @@ pub enum ErrorCode {
     SigVerificationFailed,
     #[msg("Invalid job hash")]
     InvalidJobHash,
+    #[msg("Invalid mint")]
+    InvalidMint,
 } 

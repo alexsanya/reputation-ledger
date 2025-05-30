@@ -13,6 +13,7 @@ pub struct Order {
     pub user: [u8; 32],
     pub job_hash: [u8; 32],
     pub price: u64,
+    pub mint: Pubkey,
     pub price_valid_until: u64,
     pub deadline: i64,
 }
@@ -30,7 +31,7 @@ pub fn process_commit(ctx: Context<Commit>, job_hash: [u8; 32]) -> Result<()> {
     //compare key and config.authority
     require!(key == config.authority_signer.to_bytes(), ErrorCode::InvalidSignature);
     require!(order_decoded.job_hash == job_hash, ErrorCode::InvalidJobHash);
-
+    require!(order_decoded.mint == ctx.accounts.mint.key(), ErrorCode::InvalidMint);
 
     let order = &mut ctx.accounts.order;
     order.user = ctx.accounts.user.key();

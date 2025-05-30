@@ -6,6 +6,7 @@ export class Order {
     user: Uint8Array;
     job_hash: Uint8Array;
     price: bigint;
+    mint: Uint8Array;
     price_valid_until: bigint;
     deadline: bigint;
   
@@ -13,6 +14,7 @@ export class Order {
       user: Uint8Array;
       job_hash: Uint8Array;
       price: bigint;
+      mint: Uint8Array;
       price_valid_until: bigint;
       deadline: bigint;
     }) {
@@ -35,8 +37,14 @@ export class Order {
         }
       },
       price: "u64",
+      mint: {
+        array: {
+          type: "u8",
+          len: 32
+        }
+      },
       price_valid_until: "u64",
-      deadline: "i64" 
+      deadline: "i64",
     }
   };
   
