@@ -52,3 +52,29 @@ export async function deliverUnauthorized(ctx: TestContext) {
         assert.strictEqual(err.error.errorCode.code, "ConstraintHasOne");
     }
 }
+
+export async function deliverWrongMint(ctx: TestContext) {
+    try {
+      await ctx.program.methods
+        .deliver(ctx.resultHash)
+        .accounts({
+          authority: ctx.user.publicKey,
+          order: ctx.orderPda,
+          orderVaultTokenAccount: ctx.orderVaultTokenAccount,
+          vaultAuthority: ctx.vaultAuthority,
+          vaultTokenAccount: ctx.vaultTokenAccount,
+          config: ctx.configPda,
+          mint: ctx.mint,
+          tokenProgram: TOKEN_PROGRAM_ID,
+          systemProgram: anchor.web3.SystemProgram.programId,
+        })
+        .signers([ctx.user.payer])
+        .rpc();
+
+      assert.fail("Should have failed");
+    } catch (error) {
+        assert.isTrue(error instanceof AnchorError);
+        const err: AnchorError = error;
+        assert.strictEqual(err.error.errorCode.code, "ConstraintHasOne");
+    }
+}

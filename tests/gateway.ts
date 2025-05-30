@@ -3,7 +3,7 @@ import { assert } from "chai";
 import { setup, TestContext } from "./setup";
 import { deliverSuccess, deliverUnauthorized } from "./deliver";
 import { withdraw } from "./withdraw";
-import { commitSuccess, commitWrongSignature, commitMissingInstruction, commitWrongInstruction } from "./commit";
+import { commitSuccess, commitWrongSignature, commitMissingInstruction, commitWrongInstruction, commitWrongMint } from "./commit";
 
 describe("gateway", () => {
   // Configure the client to use the local cluster.
@@ -17,11 +17,14 @@ describe("gateway", () => {
     it("Missing instruction", async () => {
       await commitMissingInstruction(ctx);
     });
-    it("Wrong instruction", async () => {
+    it("Wrong program id", async () => {
       await commitWrongInstruction(ctx);
     });
     it("Wrong signature", async () => {
       await commitWrongSignature(ctx);
+    });
+    it("Wrong mint", async () => {
+      await commitWrongMint(ctx);
     });
     it("Success", async () => {
       await commitSuccess(ctx);

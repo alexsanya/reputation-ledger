@@ -1,6 +1,6 @@
 import * as anchor from '@coral-xyz/anchor';
 import { assert } from "chai";
-import { getAccount } from "@solana/spl-token";
+import { createMint, getAccount, getOrCreateAssociatedTokenAccount, mintTo } from "@solana/spl-token";
 
 import { TestContext } from './setup';
 import { TOKEN_PROGRAM_ID } from '@solana/spl-token';
@@ -259,4 +259,95 @@ export async function commitMissingInstruction(ctx: TestContext) {
         const err: AnchorError = error;
         assert.strictEqual(err.error.errorMessage, "Invalid program id");
     }
+}
+
+export async function commitWrongMint(ctx: TestContext) {
+    const fakeMint = await createMint(
+      ctx.connection,
+      ctx.user.payer,
+      ctx.user.publicKey,
+      null,
+      6 // decimals
+    );
+    const fakeTokenAccount = await getOrCreateAssociatedTokenAccount(
+      ctx.connection,
+      ctx.user.payer,
+      fakeMint,
+      ctx.user.publicKey
+    );
+
+    await mintTo(
+      ctx.connection,
+      ctx.user.payer,
+      fakeMint,
+      fakeTokenAccount.address,
+      ctx.user.payer,
+      2_000_000 // 2 tokens
+    );
+
+
+    const orderData = new Order({
+        user: ctx.user.publicKey.toBytes(),
+        job_hash: new Uint8Array(ctx.jobHash),
+        price: ctx.price,
+        mint: ctx.mint.toBuffer(),
+        price_valid_until: BigInt(100500),
+        deadline: BigInt(3600),
+    });
+
+    const message = serializeOrder(orderData);
+    const signature = await nacl.sign.detached(message, ctx.service.secretKey);
+    
+    let tx = new anchor.web3.Transaction()
+        .add(
+            // Secp256k1 instruction
+            anchor.web3.Ed25519Program.createInstructionWithPublicKey({
+                publicKey: ctx.service.publicKey.toBytes(),
+                message,
+                signature
+            })
+        )
+        .add(
+            // Our instruction
+            await ctx.program.methods
+                .commit(
+                    ctx.jobHash
+                )
+                .accounts({
+                    user: ctx.user.publicKey,
+                    order: ctx.orderPda,
+                    userTokenAccount: fakeTokenAccount.address,
+                    orderVaultTokenAccount: ctx.orderVaultTokenAccount,
+                    mint: fakeMint,
+                    tokenProgram: TOKEN_PROGRAM_ID,
+                    systemProgram: anchor.web3.SystemProgram.programId,
+                    instructions: anchor.web3.SYSVAR_INSTRUCTIONS_PUBKEY,
+                })
+                .signers([ctx.user.payer])
+                .instruction()
+        );
+
+        try {
+            const { lastValidBlockHeight, blockhash } =
+                await ctx.provider.connection.getLatestBlockhash();
+            tx.lastValidBlockHeight = lastValidBlockHeight;
+            tx.recentBlockhash = blockhash;
+            tx.feePayer = ctx.user.publicKey;
+
+            tx.sign(ctx.user.payer);
+
+            const sig = await sendAndConfirmRawTransaction(
+                ctx.provider.connection,
+                tx.serialize(),
+                {
+                    commitment: "confirmed",
+                    skipPreflight: false
+                }
+            );
+
+            assert.fail("Should have failed with InvalidMint");
+        } catch (error) {
+            assert.isDefined(error.logs);
+            assert.isTrue(error.logs.some(log => log.includes("Error Code: InvalidMint")));
+        }
 }
