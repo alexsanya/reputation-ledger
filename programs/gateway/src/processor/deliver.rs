@@ -1,5 +1,5 @@
 use anchor_lang::prelude::*;
-use anchor_spl::token::{self, Transfer};
+use anchor_spl::token::{self, CloseAccount, Transfer};
 use crate::context::Deliver;
 use crate::state::{OrderStatus};
 use crate::errors::ErrorCode;
@@ -7,7 +7,6 @@ use crate::events::Completed;
 
 pub fn process_deliver(ctx: Context<Deliver>, result_hash: [u8; 32]) -> Result<()> {
     let order = &mut ctx.accounts.order;
-    let authority = order.to_account_info();
     require!(order.status == OrderStatus::Started, ErrorCode::InvalidOrderStatus);
     
     order.result_hash = result_hash;
@@ -34,13 +33,25 @@ pub fn process_deliver(ctx: Context<Deliver>, result_hash: [u8; 32]) -> Result<(
             Transfer {  
                 from: ctx.accounts.order_vault_token_account.to_account_info(),
                 to: ctx.accounts.vault_token_account.to_account_info(),
-                authority
+                authority: order.to_account_info(),
             },
             &[vault_authority_seeds]
         ),
         order.price,
     )?;
-    
+
+    // 2️⃣ Close order_vault token account and send rent lamports to the recipient
+    token::close_account(
+        CpiContext::new_with_signer(
+            ctx.accounts.token_program.to_account_info(),
+            CloseAccount {
+                account: ctx.accounts.order_vault_token_account.to_account_info(),
+                destination: ctx.accounts.authority.to_account_info(),
+                authority: order.to_account_info(),
+            },
+            &[vault_authority_seeds]
+        ),
+    )?;
     emit!(Completed {
         order: order.key(),
         result_hash,

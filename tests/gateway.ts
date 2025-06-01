@@ -20,7 +20,7 @@ describe("gateway", () => {
     it("Wrong program id", async () => {
       await commitWrongInstruction(ctx);
     });
-    it("Wrong signature", async () => {
+    it("Wrong signer", async () => {
       await commitWrongSignature(ctx);
     });
     it("Wrong mint", async () => {
@@ -29,14 +29,39 @@ describe("gateway", () => {
     it("Success", async () => {
       await commitSuccess(ctx);
     });
+
+    it("Replay attack", async () => {
+      // TODO: Implement replay attack
+      //await commitReplayAttack(ctx);
+    });
+
+    it("Wrong job hash", async () => {
+      // TODO: Implement wrong job hash
+      //await commitWrongJobHash(ctx);
+    });
+
+    it("Wrong token account owner", async () => {
+      // TODO: Implement wrong token account owner
+      //await commitWrongTokenAccountOwner(ctx);
+    });
+
+    it("Insufficient funds", async () => {
+      // TODO: Implement insufficient funds
+      //await commitInsufficientFunds(ctx);
+    });
+
+    it("Expired price", async () => {
+      // TODO: Implement expired price
+      //await commitExpiredPrice(ctx);
+    });
   });
 
   describe("Deliver", async () => {
-    it("Delivers the result", async () => {
-      await deliverSuccess(ctx);
-    });
     it("Deliver unauthorized", async () => {
       await deliverUnauthorized(ctx);
+    });
+    it("Delivers the result", async () => {
+      await deliverSuccess(ctx);
     });
   });
 

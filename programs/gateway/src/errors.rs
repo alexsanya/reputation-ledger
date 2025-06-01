@@ -26,4 +26,6 @@ pub enum ErrorCode {
     InvalidJobHash,
     #[msg("Invalid mint")]
     InvalidMint,
+    #[msg("Invalid token account owner")]
+    InvalidTokenAccountOwner,
 } 
