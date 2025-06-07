@@ -3,7 +3,14 @@ import { assert } from "chai";
 import { setup, TestContext } from "./setup";
 import { deliverSuccess, deliverUnauthorized } from "./deliver";
 import { withdraw } from "./withdraw";
-import { commitSuccess, commitWrongSignature, commitMissingInstruction, commitWrongInstruction, commitWrongMint, commitInsufficientFunds } from "./commit";
+import { commitWrongSignature } from "./commit/invalid_signature.test";
+import { commitWrongInstruction } from "./commit/invalid_signature.test";
+import { commitMissingInstruction } from "./commit/invalid_signature.test";
+import { commitWrongMint, commitWrongTokenAccountOwner } from "./commit/wrong_data.test";
+import { commitInsufficientFunds } from "./commit/wrong_data.test";
+import { commitSuccess } from "./commit/valid.test";
+import { commitReplayAttack } from "./commit/replay.test";
+import { commitWrongJobHash } from "./commit/wrong_job_hash";
 
 describe("gateway", () => {
   // Configure the client to use the local cluster.
@@ -17,29 +24,25 @@ describe("gateway", () => {
     it("Missing instruction", async () => {
       await commitMissingInstruction(ctx);
     });
+
     it("Wrong program id", async () => {
       await commitWrongInstruction(ctx);
     });
+
     it("Wrong signer", async () => {
       await commitWrongSignature(ctx);
     });
+
     it("Wrong mint", async () => {
       await commitWrongMint(ctx);
     });
 
-    it("Replay attack", async () => {
-      // TODO: Implement replay attack
-      //await commitReplayAttack(ctx);
-    });
-
     it("Wrong job hash", async () => {
-      // TODO: Implement wrong job hash
-      //await commitWrongJobHash(ctx);
+      await commitWrongJobHash(ctx);
     });
 
     it("Wrong token account owner", async () => {
-      // TODO: Implement wrong token account owner
-      //await commitWrongTokenAccountOwner(ctx);
+      await commitWrongTokenAccountOwner(ctx);
     });
 
     it("Insufficient funds", async () => {
@@ -53,6 +56,10 @@ describe("gateway", () => {
 
     it("Success", async () => {
       await commitSuccess(ctx);
+    });
+
+    it("Replay attack", async () => {
+      await commitReplayAttack(ctx);
     });
   });
 

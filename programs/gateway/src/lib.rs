@@ -18,10 +18,6 @@ pub mod gateway {
         processor::initialize::process_initialize(ctx)
     }
 
-    pub fn fund_me(ctx: Context<FundMe>, amount: u64) -> Result<()> {
-        processor::fund_me::process_fund_me(ctx, amount)
-    }
-
     pub fn commit(ctx: Context<Commit>, job_hash: [u8; 32]) -> Result<()> {
         processor::commit::process_commit(ctx, job_hash)
     }
