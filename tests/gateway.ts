@@ -3,7 +3,7 @@ import { assert } from "chai";
 import { setup, TestContext } from "./setup";
 import { deliverSuccess, deliverUnauthorized } from "./deliver";
 import { withdraw } from "./withdraw";
-import { commitSuccess, commitWrongSignature, commitMissingInstruction, commitWrongInstruction, commitWrongMint } from "./commit";
+import { commitSuccess, commitWrongSignature, commitMissingInstruction, commitWrongInstruction, commitWrongMint, commitInsufficientFunds } from "./commit";
 
 describe("gateway", () => {
   // Configure the client to use the local cluster.
@@ -26,9 +26,6 @@ describe("gateway", () => {
     it("Wrong mint", async () => {
       await commitWrongMint(ctx);
     });
-    it("Success", async () => {
-      await commitSuccess(ctx);
-    });
 
     it("Replay attack", async () => {
       // TODO: Implement replay attack
@@ -46,13 +43,16 @@ describe("gateway", () => {
     });
 
     it("Insufficient funds", async () => {
-      // TODO: Implement insufficient funds
-      //await commitInsufficientFunds(ctx);
+      await commitInsufficientFunds(ctx);
     });
 
     it("Expired price", async () => {
       // TODO: Implement expired price
       //await commitExpiredPrice(ctx);
+    });
+
+    it("Success", async () => {
+      await commitSuccess(ctx);
     });
   });
 
