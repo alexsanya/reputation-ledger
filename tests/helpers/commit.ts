@@ -14,6 +14,8 @@ export interface CommitOrderData {
   deadline?: bigint;
 }
 
+const ONE_DAY_IN_MS = 1000 * 60 * 60 * 24;
+
 export async function buildOrderMessage(
   testCtx: TestContext,
   overrides: CommitOrderData = {}
@@ -23,7 +25,7 @@ export async function buildOrderMessage(
     job_hash: overrides.job_hash || new Uint8Array(testCtx.jobHash),
     price: overrides.price || testCtx.price,
     mint: overrides.mint || new Uint8Array(testCtx.mint.toBuffer()),
-    price_valid_until: overrides.price_valid_until || BigInt(100500),
+    price_valid_until: overrides.price_valid_until || BigInt(Date.now() + ONE_DAY_IN_MS),
     deadline: overrides.deadline || BigInt(3600),
   });
 

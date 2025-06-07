@@ -36,6 +36,7 @@ pub fn process_commit(ctx: Context<Commit>, job_hash: [u8; 32]) -> Result<()> {
     );
     require!(key == config.authority_signer.to_bytes(), ErrorCode::InvalidSignature);
     require!(order_decoded.job_hash == job_hash, ErrorCode::InvalidJobHash);
+    require!(order_decoded.price_valid_until > Clock::get()?.unix_timestamp as u64, ErrorCode::OfferExpired);
     require_keys_eq!(order_decoded.mint, ctx.accounts.mint.key(), ErrorCode::InvalidMint);
 
     let order = &mut ctx.accounts.order;

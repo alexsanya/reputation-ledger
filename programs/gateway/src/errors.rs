@@ -28,4 +28,6 @@ pub enum ErrorCode {
     InvalidMint,
     #[msg("Invalid token account owner")]
     InvalidTokenAccountOwner,
+    #[msg("Offer expired")]
+    OfferExpired,
 } 

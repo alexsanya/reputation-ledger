@@ -10,7 +10,8 @@ import { commitWrongMint, commitWrongTokenAccountOwner } from "./commit/wrong_da
 import { commitInsufficientFunds } from "./commit/wrong_data.test";
 import { commitSuccess } from "./commit/valid.test";
 import { commitReplayAttack } from "./commit/replay.test";
-import { commitWrongJobHash } from "./commit/wrong_job_hash";
+import { commitWrongJobHash } from "./commit/wrong_job_hash.test";
+import { commitExpiredPrice } from "./commit/expired_price.test";
 
 describe("gateway", () => {
   // Configure the client to use the local cluster.
@@ -50,8 +51,7 @@ describe("gateway", () => {
     });
 
     it("Expired price", async () => {
-      // TODO: Implement expired price
-      //await commitExpiredPrice(ctx);
+      await commitExpiredPrice(ctx);
     });
 
     it("Success", async () => {
