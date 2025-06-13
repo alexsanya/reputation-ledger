@@ -12,33 +12,11 @@ import {
   signEd25519,
   buildCommitTransaction,
   prepareAndSubmitTransaction,
+  createMintAndTokenAccount,
 } from "../helpers/commit";
 
 export async function commitWrongMint(testCtx: TestContext) {
-  // Create a fake mint
-  const fakeMint = await createMint(
-    testCtx.connection,
-    testCtx.user.payer,
-    testCtx.user.publicKey,
-    null,
-    6 // decimals
-  );
-  
-  const fakeTokenAccount = await getOrCreateAssociatedTokenAccount(
-    testCtx.connection,
-    testCtx.user.payer,
-    fakeMint,
-    testCtx.user.publicKey
-  );
-
-  await mintTo(
-    testCtx.connection,
-    testCtx.user.payer,
-    fakeMint,
-    fakeTokenAccount.address,
-    testCtx.user.payer,
-    2_000_000 // 2 tokens
-  );
+  const { fakeMint, fakeTokenAccount } = await createMintAndTokenAccount(testCtx, testCtx.user.publicKey, 2_000_000);
 
   // Build order message with correct mint but use fake mint in transaction
   const message = await buildOrderMessage(testCtx);

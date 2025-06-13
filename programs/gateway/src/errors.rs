@@ -30,4 +30,6 @@ pub enum ErrorCode {
     InvalidTokenAccountOwner,
     #[msg("Offer expired")]
     OfferExpired,
+    #[msg("Invalid order vault token account owner")]
+    InvalidOrderVaultTokenAccountOwner,
 } 

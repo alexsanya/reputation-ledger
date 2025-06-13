@@ -18,6 +18,11 @@ pub fn process_deliver(ctx: Context<Deliver>, result_hash: [u8; 32]) -> Result<(
         ctx.program_id
     );
     require!(orderAccount == order.key(), ErrorCode::InvalidOrderVaultTokenAccount);
+    require_keys_eq!(
+        ctx.accounts.order_vault_token_account.owner,
+        order.key(),
+        ErrorCode::InvalidOrderVaultTokenAccountOwner
+    );
 
 
     let vault_authority_seeds = &[

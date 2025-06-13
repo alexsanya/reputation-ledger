@@ -1,9 +1,10 @@
 import * as anchor from "@coral-xyz/anchor";
-import { TOKEN_PROGRAM_ID } from "@solana/spl-token";
+import { createMint, getOrCreateAssociatedTokenAccount, mintTo, TOKEN_PROGRAM_ID } from "@solana/spl-token";
 import nacl from "tweetnacl";
 import { TestContext } from "../setup";
 import { Order, serializeOrder } from "../utils";
 import { ecsign, keccak256, privateToAddress } from "ethereumjs-util";
+import { PublicKey } from "@solana/web3.js";
 
 export interface CommitOrderData {
   user?: Uint8Array;
@@ -153,3 +154,36 @@ export function createEthSignature(message: string, privateKeyHex: string) {
     recoveryId,
   };
 } 
+
+export async function createMintAndTokenAccount(testCtx: TestContext, owner: PublicKey, amount: number | bigint, mint?: PublicKey) {
+
+  // Create a fake mint
+  const fakeMint = mint ? mint : await createMint(
+    testCtx.connection,
+    testCtx.user.payer,
+    testCtx.user.publicKey,
+    null,
+    6 // decimals
+  );
+  
+  const fakeTokenAccount = await getOrCreateAssociatedTokenAccount(
+    testCtx.connection,
+    testCtx.user.payer,
+    fakeMint,
+    owner
+  );
+
+  await mintTo(
+    testCtx.connection,
+    testCtx.user.payer,
+    fakeMint,
+    fakeTokenAccount.address,
+    testCtx.user.payer,
+    amount
+  );
+
+  return {
+    fakeMint,
+    fakeTokenAccount,
+  }
+}

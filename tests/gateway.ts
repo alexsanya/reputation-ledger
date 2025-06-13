@@ -1,7 +1,7 @@
 import { TOKEN_PROGRAM_ID, getAccount } from "@solana/spl-token";
 import { assert } from "chai";
 import { setup, TestContext } from "./setup";
-import { deliverSuccess, deliverUnauthorized } from "./deliver";
+import { deliverSuccess, deliverUnauthorized, replayDeliver, wrongTokenAccountOwner } from "./deliver";
 import { withdraw } from "./withdraw";
 import { commitWrongSignature } from "./commit/invalid_signature.test";
 import { commitWrongInstruction } from "./commit/invalid_signature.test";
@@ -67,8 +67,14 @@ describe("gateway", () => {
     it("Deliver unauthorized", async () => {
       await deliverUnauthorized(ctx);
     });
+    it("Wrong token account owner", async () => {
+      await wrongTokenAccountOwner(ctx);
+    });
     it("Delivers the result", async () => {
       await deliverSuccess(ctx);
+    });
+    it("Replay deliver", async () => {
+      await replayDeliver(ctx);
     });
   });
 
