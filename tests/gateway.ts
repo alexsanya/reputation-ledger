@@ -2,7 +2,7 @@ import { TOKEN_PROGRAM_ID, getAccount } from "@solana/spl-token";
 import { assert } from "chai";
 import { setup, TestContext } from "./setup";
 import { deliverSuccess, deliverUnauthorized, replayDeliver, wrongOrderAccount, wrongTokenAccountOwner } from "./deliver";
-import { withdraw } from "./withdraw";
+import { withdraw, withdrawWrongAuthority } from "./withdraw";
 import { commitWrongSignature } from "./commit/invalid_signature.test";
 import { commitWrongInstruction } from "./commit/invalid_signature.test";
 import { commitMissingInstruction } from "./commit/invalid_signature.test";
@@ -82,6 +82,9 @@ describe("gateway", () => {
   });
 
   describe("Withdraw", async () => {
+    it("Wrong authority", async () => {
+      await withdrawWrongAuthority(ctx);
+    });
     it("Withdraws tokens from vault", async () => {
       await withdraw(ctx);
     });

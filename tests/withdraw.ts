@@ -1,28 +1,16 @@
-import { ASSOCIATED_TOKEN_PROGRAM_ID, TOKEN_PROGRAM_ID, getAccount } from "@solana/spl-token";
+import { getAccount } from "@solana/spl-token";
 import { assert } from "chai";
 import { TestContext } from "./setup";
-import * as anchor from "@coral-xyz/anchor";
+import { buildWithdrawTransaction } from "./helpers/withdraw";
+import { AnchorError } from "@coral-xyz/anchor";
+
 export async function withdraw(ctx: TestContext) {
     // Get initial balances
     const initialVaultBalance = (await getAccount(ctx.connection, ctx.vaultTokenAccount)).amount;
     const initialRecipientBalance = (await getAccount(ctx.connection, ctx.recipientTokenAccount)).amount;
 
     // Withdraw tokens
-    await ctx.program.methods
-        .withdraw()
-        .accounts({
-            authority: ctx.service.publicKey,
-            config: ctx.configPda,
-            vaultTokenAccount: ctx.vaultTokenAccount,
-            recipientTokenAccount: ctx.recipientTokenAccount,
-            vaultAuthority: ctx.vaultAuthority,
-            tokenProgram: TOKEN_PROGRAM_ID,
-            mint: ctx.mint,
-            systemProgram: anchor.web3.SystemProgram.programId,
-            associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
-        })
-        .signers([ctx.service])
-        .rpc();
+    await buildWithdrawTransaction(ctx).rpc();
 
     // Check final balances
     const finalVaultBalance = (await getAccount(ctx.connection, ctx.vaultTokenAccount)).amount;
@@ -38,3 +26,19 @@ export async function withdraw(ctx: TestContext) {
         "Recipient should receive all tokens from vault"
     );
 } 
+
+export async function withdrawWrongAuthority(ctx: TestContext) {
+    try {
+        await buildWithdrawTransaction(ctx, {
+            authority: ctx.user.publicKey,
+            signer: ctx.user.payer,
+            recipientTokenAccount: ctx.userTokenAccount
+        }).rpc();
+        assert.fail("Should have failed");
+    } catch (error) {
+        assert.isTrue(error instanceof AnchorError);
+        const err: AnchorError = error;
+        assert.strictEqual(err.error.errorCode.code, "ConstraintHasOne");
+        assert.strictEqual(err.error.origin, "config");
+    }
+}
