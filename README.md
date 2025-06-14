@@ -26,6 +26,10 @@ This project enables exactly that—on-chain. No middlemen, no fake reviews, no 
 
 ## 🔄 Workflow
 
+![Workflow Diagram](docs/solana_reputation_ledger_carousel.gif)
+
+<sub>This animation shows the protocol steps: from client request to delivery and audit.</sub>
+
 1. **Client Requests a Quote**  
    Sends order data off-chain to the service provider.
 
