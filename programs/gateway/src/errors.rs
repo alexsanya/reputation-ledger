@@ -10,8 +10,6 @@ pub enum ErrorCode {
     TimeoutNotReached,
     #[msg("Invalid user")]
     InvalidUser,
-    #[msg("Invalid order vault token account")]
-    InvalidOrderVaultTokenAccount,
     #[msg("Invalid vault authority")]
     InvalidVaultAuthority,
     #[msg("Invalid signature")]
@@ -32,4 +30,6 @@ pub enum ErrorCode {
     OfferExpired,
     #[msg("Invalid order vault token account owner")]
     InvalidOrderVaultTokenAccountOwner,
+    #[msg("Invalid order account")]
+    InvalidOrderAccount,
 } 

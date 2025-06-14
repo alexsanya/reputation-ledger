@@ -17,7 +17,7 @@ pub fn process_deliver(ctx: Context<Deliver>, result_hash: [u8; 32]) -> Result<(
         &[b"order", order.user.as_ref(), order.job_hash.as_ref()],
         ctx.program_id
     );
-    require!(orderAccount == order.key(), ErrorCode::InvalidOrderVaultTokenAccount);
+    require!(orderAccount == order.key(), ErrorCode::InvalidOrderAccount);
     require_keys_eq!(
         ctx.accounts.order_vault_token_account.owner,
         order.key(),

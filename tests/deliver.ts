@@ -1,10 +1,10 @@
-import * as anchor from "@coral-xyz/anchor";
-import { getAccount, TOKEN_PROGRAM_ID } from "@solana/spl-token";
+import { getAccount } from "@solana/spl-token";
 import { assert } from "chai";
 import { TestContext } from "./setup";
 import { AnchorError } from "@coral-xyz/anchor";
 import { getDeliverTransaction } from "./helpers/deliver";
 import { createMintAndTokenAccount } from "./helpers/commit";
+import { Keypair, sendAndConfirmTransaction, SystemProgram, Transaction, TransactionInstruction } from "@solana/web3.js";
 
 export async function deliverSuccess(ctx: TestContext) {
     await getDeliverTransaction(ctx, ctx.service).rpc();
@@ -49,5 +49,35 @@ export async function wrongTokenAccountOwner(ctx: TestContext) {
         assert.isTrue(error instanceof AnchorError);
         const err: AnchorError = error;
         assert.strictEqual(err.error.errorCode.code, "InvalidOrderVaultTokenAccountOwner");
+    }
+}
+
+export async function wrongOrderAccount(ctx: TestContext) {
+    try {
+      const emptyDataAccount = Keypair.generate();
+      const space = 145;
+      const lamports = await ctx.connection.getMinimumBalanceForRentExemption(space);
+      const tx = new Transaction().add(
+        SystemProgram.createAccount({
+          fromPubkey: ctx.user.publicKey,
+          newAccountPubkey: emptyDataAccount.publicKey,
+          lamports,
+          space,
+          programId: ctx.program.programId
+        })
+      );
+      await sendAndConfirmTransaction(ctx.connection, tx, [
+        ctx.user.payer,
+        emptyDataAccount
+      ]);
+      await getDeliverTransaction(ctx, ctx.service, {
+        order: emptyDataAccount.publicKey
+      }).rpc();
+      assert.fail("Should have failed");
+    } catch (error) {
+        assert.isTrue(error instanceof AnchorError);
+        const err: AnchorError = error;
+        assert.strictEqual(err.error.errorCode.code, "AccountDiscriminatorMismatch");
+        assert.strictEqual(err.error.origin, "order");
     }
 }
