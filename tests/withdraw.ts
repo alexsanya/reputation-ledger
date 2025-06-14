@@ -3,6 +3,7 @@ import { assert } from "chai";
 import { TestContext } from "./setup";
 import { buildWithdrawTransaction } from "./helpers/withdraw";
 import { AnchorError } from "@coral-xyz/anchor";
+import { Keypair, sendAndConfirmTransaction, SystemProgram, Transaction } from "@solana/web3.js";
 
 export async function withdraw(ctx: TestContext) {
     // Get initial balances
@@ -39,6 +40,36 @@ export async function withdrawWrongAuthority(ctx: TestContext) {
         assert.isTrue(error instanceof AnchorError);
         const err: AnchorError = error;
         assert.strictEqual(err.error.errorCode.code, "ConstraintHasOne");
+        assert.strictEqual(err.error.origin, "config");
+    }
+}
+
+export async function withdrawWrongConfig(ctx: TestContext) {
+    try {
+      const emptyDataAccount = Keypair.generate();
+      const space = 104;
+      const lamports = await ctx.connection.getMinimumBalanceForRentExemption(space);
+      const tx = new Transaction().add(
+        SystemProgram.createAccount({
+          fromPubkey: ctx.service.publicKey,
+          newAccountPubkey: emptyDataAccount.publicKey,
+          lamports,
+          space,
+          programId: ctx.program.programId
+        })
+      );
+      await sendAndConfirmTransaction(ctx.connection, tx, [
+        ctx.service,
+        emptyDataAccount
+      ]);
+        await buildWithdrawTransaction(ctx, {
+            config: emptyDataAccount.publicKey
+        }).rpc();
+        assert.fail("Should have failed");
+    } catch (error) {
+        assert.isTrue(error instanceof AnchorError);
+        const err: AnchorError = error;
+        assert.strictEqual(err.error.errorCode.code, "AccountDiscriminatorMismatch");
         assert.strictEqual(err.error.origin, "config");
     }
 }

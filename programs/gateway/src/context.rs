@@ -19,60 +19,6 @@ pub struct Initialize<'info> {
 }
 
 #[derive(Accounts)]
-pub struct FundMe<'info> {
-    #[account(mut)]
-    pub user: Signer<'info>,
-    #[account(mut)]
-    pub user_token_account: Account<'info, TokenAccount>,
-    /// CHECK: This is a PDA that will be used as the token account authority
-    #[account(seeds = [b"vault-authority"], bump)]
-    pub vault_authority: AccountInfo<'info>,
-    #[account(
-        init_if_needed,
-        payer = user,
-        seeds = [b"vault", mint.key().as_ref()],
-        bump,
-        token::mint = mint,
-        token::authority = vault_authority,
-    )]
-    pub vault_token_account: Account<'info, TokenAccount>,
-    pub mint: Account<'info, Mint>,
-    pub token_program: Program<'info, Token>,
-    pub system_program: Program<'info, System>,
-}
-
-#[derive(Accounts)]
-#[instruction(job_hash: [u8; 32])]
-pub struct Estimate<'info> {
-    #[account(mut)]
-    pub user: Signer<'info>,
-    
-    #[account(
-        init,
-        payer = user,
-        space = 500,
-        seeds = [b"order", user.key().as_ref(), job_hash.as_ref()],
-        bump
-    )]
-    pub order: Account<'info, crate::state::Order>,
-    
-    pub system_program: Program<'info, System>,
-}
-
-#[derive(Accounts)]
-pub struct Evaluate<'info> {
-    #[account(mut)]
-    pub order: Account<'info, crate::state::Order>,
-    pub authority: Signer<'info>,
-    #[account(
-        seeds = [b"config"],
-        has_one = authority,
-        bump
-    )]
-    pub config: Account<'info, crate::state::Config>,
-}
-
-#[derive(Accounts)]
 #[instruction(job_hash: [u8; 32])]
 pub struct Commit<'info> {
     #[account(mut)]
