@@ -43,7 +43,7 @@ pub fn process_commit(ctx: Context<Commit>, job_hash: [u8; 32]) -> Result<()> {
     order.user = ctx.accounts.user.key();
     order.job_hash = job_hash;
     order.status = OrderStatus::Started;
-    order.started_at = Clock::get()?.unix_timestamp;
+    order.started_at = ctx.accounts.clock.unix_timestamp;
     order.price = order_decoded.price;
     order.price_valid_until = order_decoded.price_valid_until;
     order.deadline = order_decoded.deadline;

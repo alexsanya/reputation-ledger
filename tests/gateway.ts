@@ -12,6 +12,7 @@ import { commitSuccess } from "./commit/valid.test";
 import { commitReplayAttack } from "./commit/replay.test";
 import { commitWrongJobHash } from "./commit/wrong_job_hash.test";
 import { commitExpiredPrice } from "./commit/expired_price.test";
+import { declineSuccess } from "./decline/valid.test";
 
 describe("gateway", () => {
   // Configure the client to use the local cluster.
@@ -90,6 +91,19 @@ describe("gateway", () => {
     });
     it("Withdraws tokens from vault", async () => {
       await withdraw(ctx);
+    });
+  });
+
+  describe("Decline", async () => {
+    let ctx_decline: TestContext;
+
+    before(async () => {
+      ctx_decline = await setup({ service: ctx.service, run_initialize: false, jobString: "new job hash" });
+    });
+
+    it("Declines the order", async () => {
+      await commitSuccess(ctx_decline);
+      await declineSuccess(ctx_decline);
     });
   });
 

@@ -4,7 +4,7 @@ import { TestContext } from "./setup";
 import { AnchorError } from "@coral-xyz/anchor";
 import { getDeliverTransaction } from "./helpers/deliver";
 import { createMintAndTokenAccount } from "./helpers/commit";
-import { Keypair, sendAndConfirmTransaction, SystemProgram, Transaction, TransactionInstruction } from "@solana/web3.js";
+import { Keypair, sendAndConfirmTransaction, SystemProgram, Transaction } from "@solana/web3.js";
 
 export async function deliverSuccess(ctx: TestContext) {
     await getDeliverTransaction(ctx, ctx.service).rpc();
@@ -13,6 +13,13 @@ export async function deliverSuccess(ctx: TestContext) {
     assert.isDefined(order.status.completed);
     const vaultBalance = (await getAccount(ctx.connection, ctx.vaultTokenAccount)).amount;
     assert.equal(vaultBalance, ctx.price);
+
+    try {
+      await getAccount(ctx.connection, ctx.orderVaultTokenAccount);
+      assert.fail("Order vault token account should be closed");
+    } catch (error) {
+      assert.equal(error.name, "TokenAccountNotFoundError");
+    }
 } 
 
 export async function deliverUnauthorized(ctx: TestContext) {

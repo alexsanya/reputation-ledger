@@ -25,14 +25,14 @@ export interface TestContext {
     provider: anchor.AnchorProvider;
 }
 
-export async function setup(): Promise<TestContext> {
+export async function setup(opts: { service?: Keypair, run_initialize?: boolean, jobString?: string } = { run_initialize: true }): Promise<TestContext> {
 
   anchor.setProvider(anchor.AnchorProvider.env());
 
-  const service = Keypair.generate();
+  const service = opts.service || Keypair.generate();
 
   // Test constants
-  const jobHash = Keccak('keccak256').update("test job hash").digest();
+  const jobHash = Keccak('keccak256').update(opts.jobString || "test job hash").digest();
   const resultHash = Keccak('keccak256').update("test result hash").digest();
   const price = BigInt(1_000_000);
 
@@ -98,16 +98,18 @@ export async function setup(): Promise<TestContext> {
       program.programId
     );
 
-    // Initialize config
-    await program.methods
-      .initialize()
-      .accounts({
-        user: service.publicKey,
-        config: configPda,
-        systemProgram: anchor.web3.SystemProgram.programId,
-      })
-      .signers([service])
-      .rpc();
+    if (opts.run_initialize) {
+      // Initialize config
+      await program.methods
+        .initialize()
+        .accounts({
+          user: service.publicKey,
+          config: configPda,
+          systemProgram: anchor.web3.SystemProgram.programId,
+        })
+          .signers([service])
+          .rpc();
+    }
 
     // Derive orderVaultTokenAccount PDA (do not create ATA)
     [orderVaultTokenAccount] = PublicKey.findProgramAddressSync(

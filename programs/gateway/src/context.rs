@@ -66,6 +66,7 @@ pub struct Commit<'info> {
     
     pub token_program: Program<'info, Token>,
     pub system_program: Program<'info, System>,
+    pub clock: Sysvar<'info, Clock>
 }
 
 #[derive(Accounts)]
@@ -105,19 +106,34 @@ pub struct Deliver<'info> {
 #[derive(Accounts)]
 pub struct Decline<'info> {
     #[account(mut)]
+    pub authority: Signer<'info>,
+
+    /// CHECK: This is a user account that will be used as the token account authority
+    pub user: UncheckedAccount<'info>,
+
+    #[account(mut)]
     pub order: Account<'info, crate::state::Order>,
     
-    #[account(mut)]
+    #[account(
+        mut,
+        associated_token::authority = user,
+        associated_token::mint = mint
+    )]
     pub user_token_account: Account<'info, TokenAccount>,
     
     #[account(mut)]
-    pub vault_token_account: Account<'info, TokenAccount>,
+    pub order_vault_token_account: Account<'info, TokenAccount>,
     
-    /// CHECK: This is a PDA that will be used as the token account authority
-    #[account(seeds = [b"vault-authority"], bump)]
-    pub vault_authority: AccountInfo<'info>,
-    
+    #[account(
+        seeds = [b"config"],
+        has_one = authority,
+        bump
+    )]
+    pub config: Account<'info, crate::state::Config>,
+
+    pub mint: Account<'info, Mint>,
     pub token_program: Program<'info, Token>,
+    pub system_program: Program<'info, System>,
 }
 
 #[derive(Accounts)]

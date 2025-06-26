@@ -13,11 +13,11 @@ pub fn process_deliver(ctx: Context<Deliver>, result_hash: [u8; 32]) -> Result<(
     order.status = OrderStatus::Completed;
     order.completed_at = Clock::get()?.unix_timestamp;
 
-    let (orderAccount, order_bump) = Pubkey::find_program_address(
+    let (order_account, order_bump) = Pubkey::find_program_address(
         &[b"order", order.user.as_ref(), order.job_hash.as_ref()],
         ctx.program_id
     );
-    require!(orderAccount == order.key(), ErrorCode::InvalidOrderAccount);
+    require!(order_account == order.key(), ErrorCode::InvalidOrderAccount);
     require_keys_eq!(
         ctx.accounts.order_vault_token_account.owner,
         order.key(),
