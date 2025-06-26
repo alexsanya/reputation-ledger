@@ -28,12 +28,6 @@ pub fn process_commit(ctx: Context<Commit>, job_hash: [u8; 32]) -> Result<()> {
 
     let order_decoded = Order::try_from_slice(&message)?;
 
-    //compare key and config.authority
-    require_keys_eq!(
-        ctx.accounts.user_token_account.owner,
-        ctx.accounts.user.key(),
-        ErrorCode::InvalidTokenAccountOwner
-    );
     require!(key == config.authority_signer.to_bytes(), ErrorCode::InvalidSignature);
     require!(order_decoded.job_hash == job_hash, ErrorCode::InvalidJobHash);
     require!(order_decoded.price_valid_until > Clock::get()?.unix_timestamp as u64, ErrorCode::OfferExpired);

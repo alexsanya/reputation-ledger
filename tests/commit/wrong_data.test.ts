@@ -123,7 +123,7 @@ export async function commitWrongTokenAccountOwner(testCtx: TestContext) {
   } catch (error: any) {
     assert.isDefined(error.logs);
     assert.isTrue(
-      error.logs.some((log: string) => log.includes("Error Code: InvalidTokenAccountOwner"))
+      error.logs.some((log: string) => log.includes("A token owner constraint was violated"))
     );
   }
 } 

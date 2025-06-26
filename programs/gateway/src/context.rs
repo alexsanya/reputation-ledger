@@ -39,7 +39,11 @@ pub struct Commit<'info> {
     )]
     pub order: Account<'info, crate::state::Order>,
     
-    #[account(mut)]
+    #[account(
+        mut,
+        associated_token::authority = user,
+        associated_token::mint = mint
+    )]
     pub user_token_account: Account<'info, TokenAccount>,
     
     #[account(
