@@ -105,6 +105,7 @@ pub struct Deliver<'info> {
     pub mint: Account<'info, Mint>,
     pub token_program: Program<'info, Token>,
     pub system_program: Program<'info, System>,
+    pub clock: Sysvar<'info, Clock>
 }
 
 #[derive(Accounts)]
@@ -138,6 +139,7 @@ pub struct Decline<'info> {
     pub mint: Account<'info, Mint>,
     pub token_program: Program<'info, Token>,
     pub system_program: Program<'info, System>,
+    pub clock: Sysvar<'info, Clock>
 }
 
 #[derive(Accounts)]

@@ -32,4 +32,6 @@ pub enum ErrorCode {
     InvalidOrderVaultTokenAccountOwner,
     #[msg("Invalid order account")]
     InvalidOrderAccount,
+    #[msg("Deliver after deadline")]
+    DeliverAfterDeadline,
 } 

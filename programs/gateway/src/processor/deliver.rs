@@ -8,10 +8,11 @@ use crate::events::Completed;
 pub fn process_deliver(ctx: Context<Deliver>, result_hash: [u8; 32]) -> Result<()> {
     let order = &mut ctx.accounts.order;
     require!(order.status == OrderStatus::Started, ErrorCode::InvalidOrderStatus);
+    require!(ctx.accounts.clock.unix_timestamp < order.deadline, ErrorCode::DeliverAfterDeadline);
     
     order.result_hash = result_hash;
     order.status = OrderStatus::Completed;
-    order.completed_at = Clock::get()?.unix_timestamp;
+    order.completed_at = ctx.accounts.clock.unix_timestamp;
 
     let (order_account, order_bump) = Pubkey::find_program_address(
         &[b"order", order.user.as_ref(), order.job_hash.as_ref()],

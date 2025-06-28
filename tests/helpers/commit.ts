@@ -27,7 +27,7 @@ export async function buildOrderMessage(
     price: overrides.price || testCtx.price,
     mint: overrides.mint || new Uint8Array(testCtx.mint.toBuffer()),
     price_valid_until: overrides.price_valid_until || BigInt(Date.now() + ONE_DAY_IN_MS),
-    deadline: overrides.deadline || BigInt(3600),
+    deadline: overrides.deadline || BigInt(Date.now() + 2 * ONE_DAY_IN_MS),
   });
 
   return serializeOrder(orderData);
