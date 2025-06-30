@@ -3,8 +3,9 @@ import { assert } from "chai";
 import { TestContext } from "./setup";
 import { AnchorError } from "@coral-xyz/anchor";
 import { getDeliverTransaction } from "./helpers/deliver";
-import { createMintAndTokenAccount } from "./helpers/commit";
-import { Keypair, sendAndConfirmTransaction, SystemProgram, Transaction } from "@solana/web3.js";
+import { buildCommitTransaction, buildOrderMessage, createMintAndTokenAccount, prepareAndSubmitTransaction, signEd25519 } from "./helpers/commit";
+import { Keypair, PublicKey, sendAndConfirmTransaction, SystemProgram, Transaction } from "@solana/web3.js";
+import Keccak from 'keccak';
 
 export async function deliverSuccess(ctx: TestContext) {
     await getDeliverTransaction(ctx, ctx.service).rpc();
@@ -87,4 +88,41 @@ export async function wrongOrderAccount(ctx: TestContext) {
         assert.strictEqual(err.error.errorCode.code, "AccountDiscriminatorMismatch");
         assert.strictEqual(err.error.origin, "order");
     }
+}
+
+export async function deliverAfterDeadline(ctx: TestContext) {
+  const ONE_DAY_IN_MS = 1000 * 60 * 60 * 24;
+  const job_hash = Keccak('keccak256').update("deliverAfterDeadline").digest();
+  const message = await buildOrderMessage(ctx, {
+    job_hash,
+    deadline: BigInt(Math.floor(Date.now() / 1000) - ONE_DAY_IN_MS)
+  });
+  const signature = await signEd25519(message, ctx.service.secretKey);
+  const [orderPda] = PublicKey.findProgramAddressSync(
+    [Buffer.from("order"), ctx.user.publicKey.toBuffer(), job_hash],
+    ctx.program.programId
+  );
+  const [orderVaultTokenAccount] = PublicKey.findProgramAddressSync(
+    [Buffer.from("vault"), orderPda.toBuffer()],
+    ctx.program.programId
+  );
+  const tx = await buildCommitTransaction({
+    ...ctx,
+    orderPda,
+    jobHash: job_hash,
+    orderVaultTokenAccount,
+  }, message, signature);
+
+  await prepareAndSubmitTransaction(ctx, tx);
+
+  try {
+      await getDeliverTransaction(ctx, ctx.service, {
+          order: orderPda,
+      }).rpc();
+      assert.fail("Should have failed");
+  } catch (error) {
+      assert.isTrue(error instanceof AnchorError);
+      const err: AnchorError = error;
+      assert.strictEqual(err.error.errorCode.code, "DeliverAfterDeadline");
+  }
 }
