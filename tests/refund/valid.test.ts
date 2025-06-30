@@ -6,6 +6,7 @@ import { commitOrder } from "../helpers/order";
 
 export async function refundSuccess(ctx: TestContext) {
     const { orderPda, orderVaultTokenAccount } = await commitOrder(ctx, "refundSuccess");
+    const { amount: amountBeforeRefund } = await getAccount(ctx.connection, ctx.userTokenAccount);
 
     await ctx.program.methods
       .refund()
@@ -27,8 +28,8 @@ export async function refundSuccess(ctx: TestContext) {
     assert.isDefined(order.status.refunded);
 
     // Check that the user's token balance is restored
-    const userAccount = await getAccount(ctx.connection, ctx.userTokenAccount);
-    assert.equal(Number(userAccount.amount), 2_000_000);
+    const { amount: amountAfterRefund } = await getAccount(ctx.connection, ctx.userTokenAccount);
+    assert.equal(amountAfterRefund - amountBeforeRefund, ctx.price);
 
     // Check order vault token account is closed
     try {

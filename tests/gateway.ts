@@ -14,6 +14,7 @@ import { commitWrongJobHash } from "./commit/wrong_job_hash.test";
 import { commitExpiredPrice } from "./commit/expired_price.test";
 import { declineSuccess } from "./decline/valid.test";
 import { refundSuccess } from "./refund/valid.test";
+import { refundBeforeDeadline } from "./refund/before_deadline.test";
 
 describe("gateway", () => {
   // Configure the client to use the local cluster.
@@ -112,6 +113,9 @@ describe("gateway", () => {
   });
 
   describe("Refund", async () => {
+    it("Refund before deadline", async () => {
+      await refundBeforeDeadline(ctx);
+    });
     it("Allows refund after timeout", async () => {
       await refundSuccess(ctx);
     });
