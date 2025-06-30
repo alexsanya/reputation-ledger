@@ -34,4 +34,6 @@ pub enum ErrorCode {
     InvalidOrderAccount,
     #[msg("Deliver after deadline")]
     DeliverAfterDeadline,
+    #[msg("Refund before deadline")]
+    RefundBeforeDeadline,
 } 

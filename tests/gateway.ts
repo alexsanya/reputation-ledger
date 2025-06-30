@@ -13,6 +13,7 @@ import { commitReplayAttack } from "./commit/replay.test";
 import { commitWrongJobHash } from "./commit/wrong_job_hash.test";
 import { commitExpiredPrice } from "./commit/expired_price.test";
 import { declineSuccess } from "./decline/valid.test";
+import { refundSuccess } from "./refund/valid.test";
 
 describe("gateway", () => {
   // Configure the client to use the local cluster.
@@ -110,22 +111,9 @@ describe("gateway", () => {
     });
   });
 
-  it.skip("Allows refund after timeout", async () => {
-    const tx = await ctx.program.methods
-      .refund()
-      .accounts({
-        order: ctx.orderPda,
-        userTokenAccount: ctx.userTokenAccount,
-        orderVaultTokenAccount: ctx.orderVaultTokenAccount,
-        tokenProgram: TOKEN_PROGRAM_ID,
-      })
-      .rpc();
-
-    const order = await ctx.program.account.order.fetch(ctx.orderPda);
-    assert.isDefined(order.status.refunded);
-
-    // Check user balance is restored
-    const userAccount = await getAccount(ctx.connection, ctx.userTokenAccount);
-    assert.equal(Number(userAccount.amount), 2_000_000);
+  describe("Refund", async () => {
+    it("Allows refund after timeout", async () => {
+      await refundSuccess(ctx);
+    });
   });
 });

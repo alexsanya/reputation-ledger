@@ -145,15 +145,25 @@ pub struct Decline<'info> {
 #[derive(Accounts)]
 pub struct Refund<'info> {
     #[account(mut)]
+    pub user: Signer<'info>,
+
+    #[account(mut)]
     pub order: Account<'info, crate::state::Order>,
     
-    #[account(mut)]
+    #[account(
+        mut,
+        associated_token::authority = user,
+        associated_token::mint = mint
+    )]
     pub user_token_account: Account<'info, TokenAccount>,
     
     #[account(mut)]
     pub order_vault_token_account: Account<'info, TokenAccount>,
     
+    pub mint: Account<'info, Mint>,
     pub token_program: Program<'info, Token>,
+    pub system_program: Program<'info, System>,
+    pub clock: Sysvar<'info, Clock>
 }
 
 #[derive(Accounts)]
